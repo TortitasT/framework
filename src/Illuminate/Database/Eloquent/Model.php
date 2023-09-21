@@ -1706,6 +1706,7 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
                 || (is_object($relation) && in_array(AsPivot::class, class_uses_recursive($relation), true));
         })->keys()->all());
 
+        $this->attributes = array_merge($this->original, $this->attributes);
         $this->syncOriginal();
 
         return $this;
