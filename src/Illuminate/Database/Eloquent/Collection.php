@@ -63,6 +63,7 @@ class Collection extends BaseCollection implements QueueableCollection
                 $relations = func_get_args();
             }
 
+            // TODO: Is there a withCount missing here?
             $query = $this->first()->newQueryWithoutRelationships()->with($relations);
 
             $this->items = $query->eagerLoadRelations($this->items);
@@ -198,7 +199,7 @@ class Collection extends BaseCollection implements QueueableCollection
             $segments = explode('.', explode(':', $key)[0]);
 
             if (str_contains($key, ':')) {
-                $segments[count($segments) - 1] .= ':'.explode(':', $key)[1];
+                $segments[count($segments) - 1] .= ':' . explode(':', $key)[1];
             }
 
             $path = [];
@@ -234,7 +235,7 @@ class Collection extends BaseCollection implements QueueableCollection
             $relation = reset($relation);
         }
 
-        $models->filter(fn ($model) => ! is_null($model) && ! $model->relationLoaded($name))->load($relation);
+        $models->filter(fn ($model) => !is_null($model) && !$model->relationLoaded($name))->load($relation);
 
         if (empty($path)) {
             return;
@@ -343,7 +344,7 @@ class Collection extends BaseCollection implements QueueableCollection
     {
         $result = parent::map($callback);
 
-        return $result->contains(fn ($item) => ! $item instanceof Model) ? $result->toBase() : $result;
+        return $result->contains(fn ($item) => !$item instanceof Model) ? $result->toBase() : $result;
     }
 
     /**
@@ -361,7 +362,7 @@ class Collection extends BaseCollection implements QueueableCollection
     {
         $result = parent::mapWithKeys($callback);
 
-        return $result->contains(fn ($item) => ! $item instanceof Model) ? $result->toBase() : $result;
+        return $result->contains(fn ($item) => !$item instanceof Model) ? $result->toBase() : $result;
     }
 
     /**
@@ -380,6 +381,7 @@ class Collection extends BaseCollection implements QueueableCollection
 
         $freshModels = $model->newQueryWithoutScopes()
             ->with(is_string($with) ? func_get_args() : $with)
+            // TODO: Is there a withCount missing here?
             ->whereIn($model->getKeyName(), $this->modelKeys())
             ->get()
             ->getDictionary();
@@ -401,7 +403,7 @@ class Collection extends BaseCollection implements QueueableCollection
         $dictionary = $this->getDictionary($items);
 
         foreach ($this->items as $item) {
-            if (! isset($dictionary[$this->getDictionaryKey($item->getKey())])) {
+            if (!isset($dictionary[$this->getDictionaryKey($item->getKey())])) {
                 $diff->add($item);
             }
         }
@@ -443,7 +445,7 @@ class Collection extends BaseCollection implements QueueableCollection
      */
     public function unique($key = null, $strict = false)
     {
-        if (! is_null($key)) {
+        if (!is_null($key)) {
             return parent::unique($key, $strict);
         }
 
@@ -697,8 +699,8 @@ class Collection extends BaseCollection implements QueueableCollection
     protected function getQueueableModelClass($model)
     {
         return method_exists($model, 'getQueueableClassName')
-                ? $model->getQueueableClassName()
-                : get_class($model);
+            ? $model->getQueueableClassName()
+            : get_class($model);
     }
 
     /**
@@ -713,8 +715,8 @@ class Collection extends BaseCollection implements QueueableCollection
         }
 
         return $this->first() instanceof QueueableEntity
-                    ? $this->map->getQueueableId()->all()
-                    : $this->modelKeys();
+            ? $this->map->getQueueableId()->all()
+            : $this->modelKeys();
     }
 
     /**
@@ -774,13 +776,13 @@ class Collection extends BaseCollection implements QueueableCollection
     {
         $model = $this->first();
 
-        if (! $model) {
+        if (!$model) {
             throw new LogicException('Unable to create query for empty collection.');
         }
 
         $class = get_class($model);
 
-        if ($this->filter(fn ($model) => ! $model instanceof $class)->isNotEmpty()) {
+        if ($this->filter(fn ($model) => !$model instanceof $class)->isNotEmpty()) {
             throw new LogicException('Unable to create query for collection with mixed types.');
         }
 
